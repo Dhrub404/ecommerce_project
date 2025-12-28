@@ -1,0 +1,15 @@
+.orders-list {
+  display: grid;
+  gap: 12px;
+}
+
+.orders-list .card {
+  padding: 12px;
+  border-radius: 8px;
+}
+
+@media (min-width: 700px) {
+  .orders-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}

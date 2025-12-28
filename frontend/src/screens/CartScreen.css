@@ -1,0 +1,125 @@
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.cart-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cart-thumb img {
+  width: 180px;
+  height: 180px;
+  object-fit: contain; /* Keeps aspect ratio like Amazon */
+  background-color: #f8f8f8;
+  border-radius: 4px;
+}
+
+.cart-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cart-name {
+  font-size: 20px;
+  font-weight: 500;
+  color: #007185; /* Amazon link color */
+  margin-bottom: 8px;
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.cart-name:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #c7511f;
+}
+
+.cart-details p {
+  margin: 4px 0;
+  color: #565959;
+}
+
+.cart-details p:last-child {
+  font-size: 22px;
+  font-weight: 700;
+  color: #B12704; /* Amazon price color */
+  margin-top: 8px;
+}
+
+.cart-summary {
+  background: #f3f3f3;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  text-align: right;
+  border: 1px solid #ddd;
+}
+
+.cart-summary h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #111;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px; /* Softer corners */
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #FFD814; /* Amazon yellow button */
+  border-color: #FCD200;
+  color: #111;
+  box-shadow: 0 2px 5px rgba(213, 217, 217, 0.5);
+}
+
+.btn-primary:hover {
+  background: #F7CA00;
+  border-color: #F2C200;
+  box-shadow: 0 2px 5px rgba(213, 217, 217, 0.8);
+}
+
+@media (max-width: 768px) {
+  .cart-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .cart-thumb img {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+  }
+
+  .cart-summary {
+    text-align: center;
+  }
+}

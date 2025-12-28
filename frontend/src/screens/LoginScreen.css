@@ -1,0 +1,28 @@
+form {
+  max-width: 420px;
+  margin: 24px auto;
+  padding: 18px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+form h2 {
+  margin-bottom: 12px;
+}
+
+form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+form button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  background: #646cff;
+  color: #fff;
+  border: none;
+}
