@@ -43,7 +43,7 @@ function OrderScreen() {
       {orders.length === 0 ? (
         <Alert variant="info">No orders yet</Alert>
       ) : (
-        <div className="table-responsive shadow-sm rounded-3 overflow-hidden">
+        <div className="shadow-sm rounded-3">
           <Table striped bordered hover className="mb-0 align-middle">
             <thead className="bg-light">
               <tr>

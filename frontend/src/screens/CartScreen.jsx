@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Row, Col, ListGroup, Image, Form, Button, Card, Container, Alert } from "react-bootstrap";
-import { fetchCart, addToCart, removeFromCart } from "../actions/cartActions"; // Ensure removeFromCart exists or implement it
+import { fetchCart, addToCart, removeFromCart, updateCartItem } from "../actions/cartActions";
+import QuantitySelector from "../components/QuantitySelector";
 import { placeOrder } from "../actions/orderActions";
 import './CartScreen.css';
 
@@ -85,8 +86,14 @@ function CartScreen() {
                     <Col md={2} className="text-muted">
                       ₹{item.product?.price}
                     </Col>
-                    <Col md={2}>
-                      <span className="fw-bold">Qty: {item.quantity}</span>
+                    <Col md={3}>
+                      <QuantitySelector
+                        value={item.quantity}
+                        max={item.product?.stock || 99}
+                        onChange={(val) => dispatch(updateCartItem(item.id, val))}
+                        onRemove={() => removeFromCartHandler(item.id)}
+                        disabled={loading}
+                      />
                     </Col>
                     <Col md={2}>
                       {/* Optional Remove Button */}

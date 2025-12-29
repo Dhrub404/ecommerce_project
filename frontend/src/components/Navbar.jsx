@@ -30,7 +30,7 @@ function Navbar() {
     <BNavbar bg="dark" variant="dark" expand="lg" collapseOnSelect className="py-3 shadow-lg">
       <Container>
         <BNavbar.Brand as={Link} to="/" className="fw-bold fs-3 text-warning">
-          MyShop
+          Cartify
         </BNavbar.Brand>
         <BNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BNavbar.Collapse id="basic-navbar-nav">

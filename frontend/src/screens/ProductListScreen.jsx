@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Pagination } from "react-bootstrap";
 import { listProducts } from "../actions/productActions";
 import { addToCart, updateCartItem, fetchCart } from "../actions/cartActions";
+import QuantitySelector from "../components/QuantitySelector";
 import './ProductListScreen.css';
 
 function ProductListScreen() {
@@ -59,8 +60,12 @@ function ProductListScreen() {
       (cartItem.product.id || cartItem.product._id) : cartItem.product;
     markUpdating(productId);
     try {
-      const newQty = cartItem.quantity - 1;
-      await cartDispatch(updateCartItem(cartItem.id, newQty));
+      if (cartItem.quantity <= 1) {
+        await cartDispatch(updateCartItem(cartItem.id, 0)); // Or delete
+      } else {
+        const newQty = cartItem.quantity - 1;
+        await cartDispatch(updateCartItem(cartItem.id, newQty));
+      }
     } finally {
       unmarkUpdating(productId);
     }
@@ -129,26 +134,17 @@ function ProductListScreen() {
                         {isUpdating ? 'Adding...' : 'Add to Cart'}
                       </Button>
                     ) : (
-                      <div className="d-flex align-items-center justify-content-between qty-control bg-light rounded-pill p-1">
-                        <Button
-                          variant="link"
-                          size="sm"
-                          className="text-decoration-none text-dark fw-bold px-3"
-                          onClick={() => handleDecrement(cartItem)}
+                      <div className="d-flex justify-content-center">
+                        <QuantitySelector
+                          value={qty}
+                          max={product.stock}
+                          onChange={(val) => {
+                            if (val > qty) handleIncrement(product.id);
+                            else handleDecrement(cartItem);
+                          }}
+                          onRemove={() => handleDecrement(cartItem)}
                           disabled={isUpdating}
-                        >
-                          -
-                        </Button>
-                        <span className="fw-bold">{qty}</span>
-                        <Button
-                          variant="link"
-                          size="sm"
-                          className="text-decoration-none text-dark fw-bold px-3"
-                          onClick={() => handleIncrement(product.id)}
-                          disabled={isUpdating}
-                        >
-                          +
-                        </Button>
+                        />
                       </div>
                     )}
                   </div>

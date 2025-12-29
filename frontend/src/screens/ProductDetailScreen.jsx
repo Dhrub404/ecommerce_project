@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Container, Row, Col, Image, ListGroup, Card, Button, Form, Alert, Spinner, Badge } from "react-bootstrap";
-import { addToCart } from "../actions/cartActions";
+import { addToCart, removeFromCart, updateCartItem } from "../actions/cartActions";
 import api from "../api/axios";
+import QuantitySelector from "../components/QuantitySelector";
 import './ProductDetailScreen.css';
 
 function ProductDetailScreen() {
@@ -12,7 +13,7 @@ function ProductDetailScreen() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState(1); // Default to 1 so "Add to Cart" works immediately on load
 
   // Review State
   const [rating, setRating] = useState(0);
@@ -38,9 +39,32 @@ function ProductDetailScreen() {
     fetchProduct();
   }, [id]);
 
+  const [inCart, setInCart] = useState(false);
+  const { items: cartItems } = useSelector((state) => state.cart);
+
+  useEffect(() => {
+    if (cartItems && product) {
+      const item = cartItems.find(x => x.product.id === product.id);
+      setInCart(!!item);
+      if (item) setQty(item.quantity);
+    }
+  }, [cartItems, product]);
+
   const addToCartHandler = () => {
-    dispatch(addToCart(id, Number(qty)));
+    const finalQty = Number(qty) > 0 ? Number(qty) : 1;
+    dispatch(addToCart(id, finalQty));
     navigate('/cart');
+  };
+
+  const removeFromCartHandler = () => {
+    if (cartItems && product) {
+      const item = cartItems.find(x => x.product.id === product.id);
+      if (item) {
+        dispatch(removeFromCart(item.id));
+        setInCart(false);
+        setQty(0);
+      }
+    }
   };
 
   const submitReviewHandler = async (e) => {
@@ -146,32 +170,41 @@ function ProductDetailScreen() {
                   <Row>
                     <Col>Qty</Col>
                     <Col>
-                      <Form.Control
-                        as="select"
-                        value={qty}
-                        onChange={(e) => setQty(e.target.value)}
-                        className="form-select-sm"
-                      >
-                        {[...Array(product.stock).keys()].slice(0, 10).map((x) => (
-                          <option key={x + 1} value={x + 1}>
-                            {x + 1}
-                          </option>
-                        ))}
-                      </Form.Control>
+                      <QuantitySelector
+                        value={Number(qty)}
+                        max={product.stock}
+                        onChange={(val) => {
+                          setQty(val);
+                          if (inCart && val > 0) {
+                            dispatch(addToCart(id, Number(val)));
+                          }
+                        }}
+                        onRemove={removeFromCartHandler}
+                      />
                     </Col>
                   </Row>
                 </ListGroup.Item>
               )}
 
               <ListGroup.Item>
-                <Button
-                  onClick={addToCartHandler}
-                  className="w-100 btn-primary rounded-pill"
-                  type="button"
-                  disabled={product.stock === 0}
-                >
-                  Add to Cart
-                </Button>
+                {inCart && qty > 0 ? (
+                  <Button
+                    className="w-100 btn-block btn-success rounded-pill"
+                    type="button"
+                    onClick={() => navigate('/cart')}
+                  >
+                    Go to Cart
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={addToCartHandler}
+                    className="w-100 btn-primary rounded-pill"
+                    type="button"
+                    disabled={product.stock === 0}
+                  >
+                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  </Button>
+                )}
               </ListGroup.Item>
             </ListGroup>
           </Card>

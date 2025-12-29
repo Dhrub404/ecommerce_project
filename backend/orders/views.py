@@ -31,6 +31,15 @@ class CreateOrderView(APIView):
                 {"detail": "Cart is empty"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Validate Address Fields
+        required_fields = ['address', 'city', 'postal_code', 'country']
+        for field in required_fields:
+            if not data.get(field):
+                 return Response(
+                    {"detail": f"Please provide {field}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         total_price = sum(
             item.product.price * item.quantity
@@ -134,3 +143,18 @@ class ShippingAddressView(APIView):
         
         serializer = ShippingAddressSerializer(address)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ShippingAddressDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            address = ShippingAddress.objects.get(pk=pk, user=request.user)
+            address.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ShippingAddress.DoesNotExist:
+            return Response(
+                {"detail": "Address not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )

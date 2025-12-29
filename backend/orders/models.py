@@ -14,10 +14,10 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    address = models.CharField(max_length=200, null=True, blank=True)
-    city = models.CharField(max_length=100, null=True, blank=True)
-    postal_code = models.CharField(max_length=50, null=True, blank=True)
-    country = models.CharField(max_length=100, null=True, blank=True)
+    address = models.CharField(max_length=200)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=50)
+    country = models.CharField(max_length=100)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,

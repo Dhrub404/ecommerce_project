@@ -9,7 +9,9 @@ function ShippingScreen() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const cart = useSelector((state) => state.cart);
+    const orderState = useSelector((state) => state.order);
     const { items } = cart;
+    const { error: orderError, success: orderSuccess } = orderState || {};
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -42,6 +44,13 @@ function ShippingScreen() {
 
     const handleCreateAddress = async (e) => {
         e.preventDefault();
+
+        if (!newAddress.address || !newAddress.city || !newAddress.postal_code || !newAddress.country) {
+            // Form will show validation errors because we used isInvalid prop
+            // We can also focus the first invalid field or just return
+            return;
+        }
+
         try {
             const { data } = await api.post("orders/addresses/", newAddress);
             setAddresses([...addresses, data]);
@@ -74,12 +83,27 @@ function ShippingScreen() {
 
     if (loading) return <Container className="py-5"><p>Loading addresses...</p></Container>;
 
+    const handleDeleteAddress = async (id, e) => {
+        e.stopPropagation();
+        if (window.confirm("Are you sure you want to delete this address?")) {
+            try {
+                await api.delete(`orders/addresses/${id}/`);
+                fetchAddresses();
+            } catch (error) {
+                alert("Error deleting address");
+            }
+        }
+    };
+
     return (
         <Container className="py-5-custom">
             <Row className="justify-content-md-center">
                 <Col md={8}>
                     <Card className="shadow-premium border-0 p-4">
                         <h2 className="mb-4 fw-bold">Checkout & confirm</h2>
+                        {cart.error && <Alert variant="danger">{cart.error}</Alert>}
+                        {orderError && <Alert variant="danger">{orderError}</Alert>}
+                        {/* check order state error if available, but cart error is common for place order quirks */}
 
                         <Form onSubmit={submitHandler}>
                             {addresses.length > 0 && (
@@ -88,18 +112,23 @@ function ShippingScreen() {
                                     {addresses.map((addr) => (
                                         <Card
                                             key={addr.id}
-                                            className={`mb-3 cursor-pointer ${selectedAddressId === addr.id ? 'border-primary bg-light' : ''}`}
+                                            className={`mb-3 cursor-pointer position-relative ${selectedAddressId === addr.id ? 'border-primary bg-light' : ''}`}
                                             onClick={() => setSelectedAddressId(addr.id)}
                                             style={{ cursor: 'pointer', borderWidth: selectedAddressId === addr.id ? '2px' : '1px' }}
                                         >
                                             <Card.Body>
-                                                <Form.Check
-                                                    type="radio"
-                                                    id={`addr-${addr.id}`}
-                                                    label={`${addr.address}, ${addr.city}, ${addr.country} - ${addr.postal_code}`}
-                                                    checked={selectedAddressId === addr.id}
-                                                    onChange={() => setSelectedAddressId(addr.id)}
-                                                />
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <Form.Check
+                                                        type="radio"
+                                                        id={`addr-${addr.id}`}
+                                                        label={`${addr.address}, ${addr.city}, ${addr.country} - ${addr.postal_code}`}
+                                                        checked={selectedAddressId === addr.id}
+                                                        onChange={() => setSelectedAddressId(addr.id)}
+                                                    />
+                                                    <Button variant="link" className="text-danger p-0" onClick={(e) => handleDeleteAddress(addr.id, e)}>
+                                                        <i className="fas fa-trash"></i>
+                                                    </Button>
+                                                </div>
                                             </Card.Body>
                                         </Card>
                                     ))}
@@ -115,27 +144,56 @@ function ShippingScreen() {
                             {showNewForm && (
                                 <Card className="mb-4 bg-light border-0">
                                     <Card.Body>
+                                        {/* Error Alert specific to this form */}
+                                        {!newAddress.address && !newAddress.city && (
+                                            <div className="text-muted small mb-3">Fields marked with <span className="text-danger">*</span> are mandatory.</div>
+                                        )}
+
                                         <div className="mb-3">
-                                            <Form.Label>Address</Form.Label>
-                                            <Form.Control type="text" required value={newAddress.address} onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })} />
+                                            <Form.Label>Address <span className="text-danger">*</span></Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={newAddress.address}
+                                                onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+                                                isInvalid={!newAddress.address && showNewForm}
+                                            />
+                                            <Form.Control.Feedback type="invalid">Address is required</Form.Control.Feedback>
                                         </div>
                                         <Row>
                                             <Col md={4}>
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>City</Form.Label>
-                                                    <Form.Control type="text" required value={newAddress.city} onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })} />
+                                                    <Form.Label>City <span className="text-danger">*</span></Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={newAddress.city}
+                                                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                                                        isInvalid={!newAddress.city && showNewForm}
+                                                    />
+                                                    <Form.Control.Feedback type="invalid">City is required</Form.Control.Feedback>
                                                 </Form.Group>
                                             </Col>
                                             <Col md={4}>
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>Postal Code</Form.Label>
-                                                    <Form.Control type="text" required value={newAddress.postal_code} onChange={(e) => setNewAddress({ ...newAddress, postal_code: e.target.value })} />
+                                                    <Form.Label>Postal Code <span className="text-danger">*</span></Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={newAddress.postal_code}
+                                                        onChange={(e) => setNewAddress({ ...newAddress, postal_code: e.target.value })}
+                                                        isInvalid={!newAddress.postal_code && showNewForm}
+                                                    />
+                                                    <Form.Control.Feedback type="invalid">Postal Code is required</Form.Control.Feedback>
                                                 </Form.Group>
                                             </Col>
                                             <Col md={4}>
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>Country</Form.Label>
-                                                    <Form.Control type="text" required value={newAddress.country} onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })} />
+                                                    <Form.Label>Country <span className="text-danger">*</span></Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={newAddress.country}
+                                                        onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+                                                        isInvalid={!newAddress.country && showNewForm}
+                                                    />
+                                                    <Form.Control.Feedback type="invalid">Country is required</Form.Control.Feedback>
                                                 </Form.Group>
                                             </Col>
                                         </Row>
