@@ -1,0 +1,11 @@
+.register-screen-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-body);
+}
+
+.register-card {
+    border: none;
+    border-radius: var(--radius-lg);
+}

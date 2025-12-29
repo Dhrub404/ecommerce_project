@@ -71,3 +71,20 @@ export const updateCartItem = (itemId, quantity) => async (dispatch) => {
     dispatch(cartFail(error.response?.data?.detail || error.message));
   }
 };
+
+export const removeFromCart = (itemId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    await api.post("cart/remove/", {
+      item_id: itemId
+    });
+    dispatch(fetchCart());
+  } catch (error) {
+    dispatch(cartFail(error.response?.data?.detail || error.message));
+  }
+};

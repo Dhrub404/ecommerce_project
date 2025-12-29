@@ -6,6 +6,9 @@ import ProductListScreen from "./screens/ProductListScreen";
 import ProductDetailScreen from "./screens/ProductDetailScreen";
 import CartScreen from "./screens/CartScreen";
 import OrderScreen from "./screens/OrderScreen";
+import ShippingScreen from "./screens/ShippingScreen";
+import OrderSuccessScreen from "./screens/OrderSuccessScreen";
+import AddressListScreen from "./screens/AddressListScreen";
 
 
 function App() {
@@ -20,6 +23,9 @@ function App() {
         <Route path="/" element={<ProductListScreen />} />
         <Route path="/cart" element={<CartScreen />} />
         <Route path="/orders" element={<OrderScreen />} />
+        <Route path="/shipping" element={<ShippingScreen />} />
+        <Route path="/order-success/:id" element={<OrderSuccessScreen />} />
+        <Route path="/my-addresses" element={<AddressListScreen />} />
       </Routes>
     </BrowserRouter>
   );

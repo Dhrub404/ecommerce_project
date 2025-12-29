@@ -22,7 +22,7 @@ export const login = (username, password) => async (dispatch) => {
   }
 };
 
-export const register = (username, email, password) => async (dispatch) => {
+export const register = (username, email, password, name) => async (dispatch) => {
   try {
     dispatch(loginRequest()); // Re-using loginRequest to set loading=true
 
@@ -30,6 +30,7 @@ export const register = (username, email, password) => async (dispatch) => {
       username,
       email,
       password,
+      first_name: name
     });
 
     localStorage.setItem("accessToken", data.access);

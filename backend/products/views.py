@@ -55,19 +55,28 @@ from .pagination import StandardResultsSetPagination
 
 
 class ProductListView(generics.ListAPIView):
-    queryset = Product.objects.filter(is_active=True)
     serializer_class = ProductSerializer
     pagination_class = StandardResultsSetPagination
+    authentication_classes = []
+
+    def get_queryset(self):
+        queryset = Product.objects.filter(is_active=True)
+        keyword = self.request.query_params.get('keyword')
+        if keyword:
+            queryset = queryset.filter(name__icontains=keyword)
+        return queryset
 
 
 class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
     serializer_class = ProductSerializer
+    authentication_classes = []
 
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    authentication_classes = []
 
 
 class ProductCreateView(generics.CreateAPIView):

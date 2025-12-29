@@ -1,15 +1,21 @@
-.orders-list {
-  display: grid;
-  gap: 12px;
+.order-container {
+  min-height: 80vh;
 }
 
-.orders-list .card {
-  padding: 12px;
-  border-radius: 8px;
+.table th {
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 1rem;
 }
 
-@media (min-width: 700px) {
-  .orders-list {
-    grid-template-columns: 1fr 1fr;
-  }
+.table td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+/* Hide standard Bootstrap dropdown arrow */
+.no-caret::after {
+  display: none !important;
 }

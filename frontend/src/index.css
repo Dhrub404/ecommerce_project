@@ -1,130 +1,152 @@
+/* Global Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Brand Colors */
+  --primary-color: #4f46e5;
+  /* Indigo-600 */
+  --primary-hover: #4338ca;
+  /* Indigo-700 */
+  --secondary-color: #64748b;
+  /* Slate-500 */
+  --accent-color: #f59e0b;
+  /* Amber-500 */
+  --success-color: #10b981;
+  /* Emerald-500 */
+  --danger-color: #ef4444;
+  /* Red-500 */
+  --dark-color: #0f172a;
+  /* Slate-900 */
+  --light-color: #f8fafc;
+  /* Slate-50 */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Text Colors */
+  --text-main: #1e293b;
+  /* Slate-800 */
+  --text-muted: #64748b;
+  /* Slate-500 */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  /* Backgrounds */
+  --bg-body: #f1f5f9;
+  /* Slate-100 */
+  --bg-card: #ffffff;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  color: var(--dark-color);
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  text-decoration: none;
+  color: var(--primary-color);
+  transition: color 0.2s;
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--primary-hover);
 }
 
-body {
-  margin: 0;
-  display: block; /* normal flow - prevents strange centered single-column layouts */
-  min-width: 320px;
-  min-height: 100vh;
-} 
+/* --- Bootstrap Overrides --- */
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+/* Buttons */
+.btn {
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease-in-out;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  transform: translateY(-1px);
+}
 
-.checkout-btn {
-  background: #16a34a;
-  color: white;
-  padding: 10px 18px;
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Cards */
+.card {
   border: none;
-  border-radius: 6px;
-  margin-top: 20px;
-  cursor: pointer;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--bg-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
+.card:hover {
+  box-shadow: var(--shadow-md);
 }
 
-body {
-  background-color: #f5f5f5;
+/* Forms */
+.form-control {
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  /* Slate-300 */
 }
 
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  /* Primary with opacity */
+}
+
+/* Utilities */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.shadow-premium {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Container */
 .container {
-  max-width: 1100px;
-  margin: 20px auto;
-  padding: 0 16px;
+  max-width: 1200px !important;
 }
 
-/* Product list and detail styles moved to per-screen CSS files in src/screens/ */
-
-/* Pagination styles (if used globally) remain here */
-.pagination .page-btn {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
+/* Spacer */
+.py-5-custom {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
-.pagination .page-btn:hover {
-  background: #f0f0f0;
-}
-.pagination .page-btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.pagination .page-btn.active {
-  background: #646cff;
-  color: white;
-  border-color: #646cff;
-}  opacity: 0.5;
-  cursor: not-allowed;
-}
-.pagination .page-btn.active {
-  background: #646cff;
-  color: white;
-  border-color: #646cff;
-}
-
-/* Product list thumbnails and cart styles moved to per-screen CSS files in src/screens/ */
-
-

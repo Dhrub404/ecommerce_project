@@ -5,10 +5,10 @@ import {
   productListFail,
 } from "../reducers/productReducers";
 
-export const listProducts = (page = 1, pageSize = 9) => async (dispatch) => {
+export const listProducts = (page = 1, pageSize = 8, keyword = '') => async (dispatch) => {
   try {
     dispatch(productListRequest());
-    const { data } = await api.get(`products/?page=${page}&page_size=${pageSize}`);
+    const { data } = await api.get(`products/?page=${page}&page_size=${pageSize}&keyword=${keyword}`);
     dispatch(productListSuccess({ data, page, pageSize }));
   } catch (error) {
     dispatch(productListFail(error.message));

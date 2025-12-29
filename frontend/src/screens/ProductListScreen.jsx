@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { Container, Row, Col, Card, Button, Pagination } from "react-bootstrap";
 import { listProducts } from "../actions/productActions";
 import { addToCart, updateCartItem, fetchCart } from "../actions/cartActions";
 import './ProductListScreen.css';
@@ -9,21 +10,24 @@ function ProductListScreen() {
   const dispatch = useDispatch();
   const cartDispatch = useDispatch();
 
-  const { items, loading, error, page, pageSize, totalPages } = useSelector(
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const keyword = queryParams.get('keyword') || '';
+
+  const { items, loading, error, page, totalPages } = useSelector(
     (state) => state.products
   );
 
   const { items: cartItems } = useSelector((state) => state.cart);
 
   const [currentPage, setCurrentPage] = useState(page || 1);
-  const perPage = 9; // fixed: show 9 per page
+  const perPage = 8; // Adjust for 4-column grid (e.g. 8 or 12)
   const totalPagesSafe = totalPages || 1;
 
   useEffect(() => {
-    dispatch(listProducts(currentPage, perPage));
-    // ensure cart is loaded so counts show inline
+    dispatch(listProducts(currentPage, perPage, keyword));
     dispatch(fetchCart());
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, keyword]);
 
   const [updatingIds, setUpdatingIds] = useState(new Set());
 
@@ -51,7 +55,8 @@ function ProductListScreen() {
   };
 
   const handleDecrement = async (cartItem) => {
-    const productId = cartItem.product && (cartItem.product.id || cartItem.product._id) ? (cartItem.product.id || cartItem.product._id) : cartItem.product;
+    const productId = cartItem.product && (cartItem.product.id || cartItem.product._id) ?
+      (cartItem.product.id || cartItem.product._id) : cartItem.product;
     markUpdating(productId);
     try {
       const newQty = cartItem.quantity - 1;
@@ -61,78 +66,121 @@ function ProductListScreen() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return (
+    <Container className="py-5 text-center">
+      <h2>Loading...</h2>
+    </Container>
+  );
+
+  if (error) return (
+    <Container className="py-5 text-center">
+      <h2 className="text-danger">{error}</h2>
+    </Container>
+  );
 
   const goToPage = (p) => {
-    if (p < 1 || p > totalPages) return;
+    if (p < 1 || p > totalPagesSafe) return;
     setCurrentPage(p);
   };
 
   return (
-    <div className="container products-grid">
-      <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-        <h2>Products</h2>
+    <Container className="py-5-custom product-list-container">
+      <div className="text-center mb-5">
+        <h2 className="fw-bold display-6">Featured Collection</h2>
+        <p className="text-muted">Explore our curated selection of premium products</p>
       </div>
 
-      <div className="products-list">
-        {items.map((product) => {
+      <Row>
+        {Array.isArray(items) && items.map((product) => {
           const imageUrl = product.image_url || (product.image ? `http://127.0.0.1:8000${product.image}` : null);
-
           const cartItem = (cartItems || []).find((ci) => ci.product && (ci.product.id === product.id || ci.product._id === product.id));
           const qty = cartItem ? cartItem.quantity : 0;
+          const isUpdating = updatingIds.has(product.id);
 
           return (
-            <div key={product.id} className="card product-card">
-              <Link to={`/product/${product.id}`} className="card-link">
-                {imageUrl && (
-                  <div className="image-wrapper">
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      className="product-thumb"
-                      style={{ height: '160px', width: '100%', objectFit: 'cover' }}
+            <Col key={product.id} sm={12} md={6} lg={4} xl={3} className="mb-4">
+              <Card className="product-card h-100 shadow-premium border-0">
+                <Link to={`/product/${product.id}`} className="text-decoration-none">
+                  <div className="card-img-wrapper">
+                    <Card.Img
+                      variant="top"
+                      src={imageUrl || '/placeholder.svg'}
+                      className="product-img"
                       onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.svg'; }}
                     />
                   </div>
-                )}
+                </Link>
 
-                <h4 className="product-name">{product.name}</h4>
-                <p className="price">₹{product.price}</p>
-              </Link>
+                <Card.Body className="d-flex flex-column">
+                  <Link to={`/product/${product.id}`} className="text-decoration-none text-dark">
+                    <Card.Title className="product-title mb-2">{product.name}</Card.Title>
+                  </Link>
 
-              {/* Inline quantity control */}
-              {qty === 0 ? (
-                <button
-                  onClick={() => handleAdd(product.id)}
-                  className="add-to-cart"
-                  disabled={updatingIds.has(product.id)}
-                >
-                  {updatingIds.has(product.id) ? 'Adding...' : 'Add to Cart'}
-                </button>
-              ) : (
-                <div className="qty-control" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <button className="add-to-cart" onClick={() => handleDecrement(cartItem)} disabled={updatingIds.has(product.id)}>-</button>
-                  <div style={{ minWidth: 28, textAlign: 'center' }}>{qty}</div>
-                  <button className="add-to-cart" onClick={() => handleIncrement(product.id)} disabled={updatingIds.has(product.id)}>+</button>
-                </div>
-              )}
-            </div>
+                  <h5 className="product-price mb-3">₹{product.price}</h5>
+
+                  <div className="mt-auto">
+                    {qty === 0 ? (
+                      <Button
+                        variant="primary"
+                        className="w-100 rounded-pill"
+                        onClick={() => handleAdd(product.id)}
+                        disabled={isUpdating}
+                      >
+                        {isUpdating ? 'Adding...' : 'Add to Cart'}
+                      </Button>
+                    ) : (
+                      <div className="d-flex align-items-center justify-content-between qty-control bg-light rounded-pill p-1">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-decoration-none text-dark fw-bold px-3"
+                          onClick={() => handleDecrement(cartItem)}
+                          disabled={isUpdating}
+                        >
+                          -
+                        </Button>
+                        <span className="fw-bold">{qty}</span>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-decoration-none text-dark fw-bold px-3"
+                          onClick={() => handleIncrement(product.id)}
+                          disabled={isUpdating}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
           );
         })}
-      </div>
+        {(!Array.isArray(items) || items.length === 0) && (
+          <Col className="text-center py-5">
+            <h4>No products found</h4>
+          </Col>
+        )}
+      </Row>
 
-        <div className="pagination" style={{display: 'flex', gap: 8, justifyContent: 'center', marginTop: 20}}>
-        <button className="page-btn" onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1}>Prev</button>
-        {Array.from({length: totalPagesSafe}).map((_, idx) => {
-          const p = idx + 1;
-          return (
-            <button key={p} onClick={() => goToPage(p)} className={`page-btn ${p === currentPage ? 'active' : ''}`}>{p}</button>
-          );
-        })}
-        <button className="page-btn" onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPagesSafe}>Next</button>
-      </div>
-    </div>
+      {totalPagesSafe > 1 && (
+        <div className="d-flex justify-content-center mt-4">
+          <Pagination>
+            <Pagination.Prev onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1} />
+            {Array.from({ length: totalPagesSafe }).map((_, idx) => {
+              const p = idx + 1;
+              return (
+                <Pagination.Item key={p} active={p === currentPage} onClick={() => goToPage(p)}>
+                  {p}
+                </Pagination.Item>
+              );
+            })}
+            <Pagination.Next onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPagesSafe} />
+          </Pagination>
+        </div>
+      )}
+    </Container>
   );
 }
 
