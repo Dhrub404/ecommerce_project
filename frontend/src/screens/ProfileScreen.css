@@ -1,0 +1,79 @@
+/* Profile Header */
+.profile-header {
+    background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%) !important;
+    padding: 3rem 1rem;
+    color: white !important;
+    border-radius: 1rem 1rem 0 0;
+    margin: 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ensure text color is white for all headings inside */
+.profile-header h1,
+.profile-header h2,
+.profile-header h3,
+.profile-header h4,
+.profile-header h5,
+.profile-header h6,
+.profile-header p,
+.profile-header span {
+    color: white !important;
+}
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+    background: white;
+    color: #8b5cf6;
+    /* Primary Color */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Shadow */
+.shadow-premium {
+    box-shadow: 0 10px 30px -5px rgba(139, 92, 246, 0.15) !important;
+    border: none !important;
+}
+
+/* Sidebar Links */
+.list-group-item.active-profile-link {
+    background-color: #f3e8ff !important;
+    /* Light purple bg */
+    color: #8b5cf6 !important;
+    border-left: 4px solid #8b5cf6 !important;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    font-weight: 600;
+}
+
+.list-group-item.active-profile-link i {
+    color: #8b5cf6 !important;
+}
+
+/* Override Bootstrap Active State */
+.list-group-item.active {
+    background-color: #f3e8ff;
+    border-color: transparent;
+    color: var(--primary-color);
+}
+
+.list-group-item {
+    color: var(--text-muted);
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.list-group-item:hover {
+    background-color: #f8fafc;
+    color: var(--primary-color);
+}

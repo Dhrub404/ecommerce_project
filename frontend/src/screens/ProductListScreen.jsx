@@ -31,6 +31,43 @@ function ProductListScreen() {
   }, [dispatch, currentPage, keyword]);
 
   const [updatingIds, setUpdatingIds] = useState(new Set());
+  const [wishlistStates, setWishlistStates] = useState({});
+
+  useEffect(() => {
+    // Load wishlist state from local storage on mount
+    const savedWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const initialStates = {};
+    savedWishlist.forEach(item => {
+      initialStates[item.product] = true;
+    });
+    setWishlistStates(initialStates);
+  }, []);
+
+  const toggleWishlist = (product) => {
+    const productId = product.id;
+    const currentWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const exists = currentWishlist.find(item => item.product === productId);
+
+    let newWishlist;
+    if (exists) {
+      // Remove
+      newWishlist = currentWishlist.filter(item => item.product !== productId);
+      setWishlistStates(prev => ({ ...prev, [productId]: false }));
+    } else {
+      // Add
+      // Use the same imageUrl logic as the card display to ensure consistency
+      const imageUrl = product.image_url || (product.image ? `http://127.0.0.1:8000${product.image}` : '/placeholder.svg');
+
+      newWishlist = [...currentWishlist, {
+        product: productId,
+        name: product.name,
+        price: product.price,
+        image: imageUrl
+      }];
+      setWishlistStates(prev => ({ ...prev, [productId]: true }));
+    }
+    localStorage.setItem('wishlist', JSON.stringify(newWishlist));
+  };
 
   const markUpdating = (id) => setUpdatingIds((s) => new Set([...s, id]));
   const unmarkUpdating = (id) => setUpdatingIds((s) => {
@@ -104,15 +141,25 @@ function ProductListScreen() {
 
           return (
             <Col key={product.id} sm={12} md={6} lg={4} xl={3} className="mb-4">
-              <Card className="product-card h-100 shadow-premium border-0">
+              <Card className="product-card h-100 shadow-premium border-0 position-relative">
+
                 <Link to={`/product/${product.id}`} className="text-decoration-none">
-                  <div className="card-img-wrapper">
+                  <div className="card-img-wrapper position-relative">
                     <Card.Img
                       variant="top"
                       src={imageUrl || '/placeholder.svg'}
                       className="product-img"
                       onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.svg'; }}
                     />
+                    <div
+                      className={`wishlist-icon ${wishlistStates[product.id] ? 'active' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleWishlist(product);
+                      }}
+                    >
+                      <i className={`fas fa-heart ${wishlistStates[product.id] ? 'text-danger' : 'text-muted-light'}`}></i>
+                    </div>
                   </div>
                 </Link>
 
@@ -120,6 +167,13 @@ function ProductListScreen() {
                   <Link to={`/product/${product.id}`} className="text-decoration-none text-dark">
                     <Card.Title className="product-title mb-2">{product.name}</Card.Title>
                   </Link>
+
+                  <div className="d-flex flex-column align-items-start mb-2">
+                    <span className="rating-badge mb-1">
+                      {product.rating} <i className="fas fa-star ms-1 small"></i>
+                    </span>
+                    <span className="review-count">({product.numReviews})</span>
+                  </div>
 
                   <h5 className="product-price mb-3">₹{product.price}</h5>
 

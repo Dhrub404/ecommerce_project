@@ -2,69 +2,82 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Container, Row, Col, Image, ListGroup, Card, Button, Form, Alert, Spinner, Badge } from "react-bootstrap";
-import { addToCart, removeFromCart, updateCartItem } from "../actions/cartActions";
+import { addToCart } from "../actions/cartActions";
 import api from "../api/axios";
-import QuantitySelector from "../components/QuantitySelector";
-import './ProductDetailScreen.css';
+import './ProductDetailScreen.css'; // Assuming CSS file still exists and is good
 
 function ProductDetailScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // -- Global State --
+  const { userInfo } = useSelector((state) => state.auth);
+  // We only need to check cart to see if we should show "Update" text, purely cosmetic/UX
+  const { items: cartItems } = useSelector((state) => state.cart);
+  const cartItem = cartItems.find(item => item.product.id === Number(id));
+
+  // -- Local State --
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [qty, setQty] = useState(1); // Default to 1 so "Add to Cart" works immediately on load
 
-  // Review State
+  // STRICT QUANTITY STATE: Always a number, default 1
+  const [qty, setQty] = useState(1);
+
+  // -- Review State --
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [reviewError, setReviewError] = useState(null);
 
-  const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.auth);
+  // -- Fetch Data --
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.get(`products/${id}/`);
+        setProduct(data);
+        // Optional: If item is in cart, sync start qty? 
+        // Let's decide: User often expects to see "Add to Cart" (1) or "Your Cart: (5)".
+        // To keep logic SIMPLE and ROBUST: We will default to 1. 
+        // If user wants to add MORE, they add more. 
+        // If they want to update, they can go to cart.
+        // However, user "Cartify" style usually implies syncing.
+        // Let's safe-sync:
+        if (cartItem) {
+          setQty(cartItem.quantity);
+        } else {
+          setQty(1);
+        }
+      } catch (err) {
+        setError(err.response?.data?.detail || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id, cartItem]);
 
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      const { data } = await api.get(`products/${id}/`);
-      setProduct(data);
-    } catch (err) {
-      setError(err.response?.data?.detail || err.message);
-    } finally {
-      setLoading(false);
+  // -- Handlers --
+
+  // PURE MATH INCREMENT
+  const incrementQty = () => {
+    if (product && qty < product.stock) {
+      setQty(prev => prev + 1);
     }
   };
 
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
-
-  const [inCart, setInCart] = useState(false);
-  const { items: cartItems } = useSelector((state) => state.cart);
-
-  useEffect(() => {
-    if (cartItems && product) {
-      const item = cartItems.find(x => x.product.id === product.id);
-      setInCart(!!item);
-      if (item) setQty(item.quantity);
+  // PURE MATH DECREMENT
+  const decrementQty = () => {
+    if (qty > 1) {
+      setQty(prev => prev - 1);
     }
-  }, [cartItems, product]);
+  };
 
   const addToCartHandler = () => {
-    const finalQty = Number(qty) > 0 ? Number(qty) : 1;
-    dispatch(addToCart(id, finalQty));
+    // Force Number() just to be absolutely paranoid
+    dispatch(addToCart(id, Number(qty)));
     navigate('/cart');
-  };
-
-  const removeFromCartHandler = () => {
-    if (cartItems && product) {
-      const item = cartItems.find(x => x.product.id === product.id);
-      if (item) {
-        dispatch(removeFromCart(item.id));
-        setInCart(false);
-        setQty(0);
-      }
-    }
   };
 
   const submitReviewHandler = async (e) => {
@@ -74,7 +87,8 @@ function ProductDetailScreen() {
       alert("Review Submitted!");
       setRating(0);
       setComment("");
-      fetchProduct(); // Refresh to show new review
+      const { data } = await api.get(`products/${id}/`);
+      setProduct(data);
     } catch (err) {
       setReviewError(err.response?.data?.detail || err.message);
     }
@@ -85,18 +99,21 @@ function ProductDetailScreen() {
       <Spinner animation="border" />
     </Container>
   );
+
   if (error) return (
     <Container className="py-5">
       <Alert variant="danger">{error}</Alert>
     </Container>
   );
+
   if (!product) return (
     <Container className="py-5">
       <Alert variant="warning">Product not found.</Alert>
     </Container>
   );
 
-  const imageUrl = product.image_url || (product.image ? `http://127.0.0.1:8000${product.image}` : null);
+  const isOutOfStock = product.stock === 0;
+  const imageUrl = product.image_url || (product.image ? `http://127.0.0.1:8000${product.image}` : '/placeholder.svg');
 
   return (
     <Container className="py-5-custom product-detail-container">
@@ -105,45 +122,45 @@ function ProductDetailScreen() {
       </Link>
 
       <Row>
-        {/* 1. Image Column */}
+        {/* IMAGE COLUMN */}
         <Col md={5} className="mb-4">
           <div className="product-image-container shadow-premium">
             <Image
-              src={imageUrl || '/placeholder.svg'}
+              src={imageUrl}
               alt={product.name}
-              className="img-fluid"
+              className="img-fluid rounded"
               onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.svg'; }}
             />
           </div>
         </Col>
 
-        {/* 2. Info Column */}
+        {/* DETAILS COLUMN */}
         <Col md={4} className="mb-4">
           <ListGroup variant="flush">
-            <ListGroup.Item>
-              <h2 className="fw-bold">{product.name}</h2>
+            <ListGroup.Item className="border-0">
+              <h2 className="fw-bold display-6">{product.name}</h2>
             </ListGroup.Item>
-            <ListGroup.Item>
-              <div className="d-flex align-items-center">
-                <div className="rating-stars me-2">
+            <ListGroup.Item className="border-0">
+              <div className="d-flex align-items-center mb-2">
+                <div className="rating-stars me-2 text-warning">
                   {"★".repeat(Math.round(product.rating || 0))}
                   {"☆".repeat(5 - Math.round(product.rating || 0))}
                 </div>
-                <span className="text-muted small">({product.numReviews} ratings)</span>
+                <span className="text-muted small">({product.numReviews} reviews)</span>
               </div>
             </ListGroup.Item>
-            <ListGroup.Item>
-              <h3 className="fw-bold product-price-detail">₹{product.price}</h3>
+            <ListGroup.Item className="border-0">
+              <h3 className="fw-bold product-price-detail text-primary">₹{product.price}</h3>
             </ListGroup.Item>
-            <ListGroup.Item>
-              <p className="product-desc">{product.description}</p>
+            <ListGroup.Item className="border-0">
+              <p className="product-desc lead fs-6">{product.description}</p>
             </ListGroup.Item>
           </ListGroup>
         </Col>
 
-        {/* 3. Buy Box Column */}
+        {/* BUY BOX COLUMN */}
         <Col md={3}>
-          <Card className="shadow-premium">
+          <Card className="shadow-premium border-0">
             <ListGroup variant="flush">
               <ListGroup.Item>
                 <Row>
@@ -151,101 +168,98 @@ function ProductDetailScreen() {
                   <Col><strong>₹{product.price}</strong></Col>
                 </Row>
               </ListGroup.Item>
-
               <ListGroup.Item>
                 <Row>
                   <Col>Status:</Col>
                   <Col>
-                    {product.stock > 0 ? (
+                    {isOutOfStock ?
+                      <Badge bg="danger">Out of Stock</Badge> :
                       <Badge bg="success">In Stock</Badge>
-                    ) : (
-                      <Badge bg="danger">Out of Stock</Badge>
-                    )}
+                    }
                   </Col>
                 </Row>
               </ListGroup.Item>
 
-              {product.stock > 0 && (
+              {/* INLINE QUANTITY CONTROLS - NO EXTERNAL COMPONENT */}
+              {!isOutOfStock && (
                 <ListGroup.Item>
-                  <Row>
+                  <Row className="align-items-center">
                     <Col>Qty</Col>
                     <Col>
-                      <QuantitySelector
-                        value={Number(qty)}
-                        max={product.stock}
-                        onChange={(val) => {
-                          setQty(val);
-                          if (inCart && val > 0) {
-                            dispatch(addToCart(id, Number(val)));
-                          }
-                        }}
-                        onRemove={removeFromCartHandler}
-                      />
+                      <div className="d-flex align-items-center justify-content-between border rounded-pill px-2 py-1 bg-light">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-decoration-none text-dark fw-bold"
+                          onClick={decrementQty}
+                          disabled={qty <= 1}
+                        >
+                          -
+                        </Button>
+                        <span className="fw-bold mx-2">{qty}</span>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-decoration-none text-dark fw-bold"
+                          onClick={incrementQty}
+                          disabled={qty >= product.stock}
+                        >
+                          +
+                        </Button>
+                      </div>
                     </Col>
                   </Row>
                 </ListGroup.Item>
               )}
 
               <ListGroup.Item>
-                {inCart && qty > 0 ? (
-                  <Button
-                    className="w-100 btn-block btn-success rounded-pill"
-                    type="button"
-                    onClick={() => navigate('/cart')}
-                  >
-                    Go to Cart
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={addToCartHandler}
-                    className="w-100 btn-primary rounded-pill"
-                    type="button"
-                    disabled={product.stock === 0}
-                  >
-                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                  </Button>
-                )}
+                <Button
+                  onClick={addToCartHandler}
+                  className="w-100 btn-primary rounded-pill py-2"
+                  type="button"
+                  disabled={isOutOfStock}
+                >
+                  {isOutOfStock ? 'Out of Stock' : (cartItem ? 'Update Cart' : 'Add to Cart')}
+                </Button>
               </ListGroup.Item>
             </ListGroup>
           </Card>
         </Col>
       </Row>
 
-      {/* Reviews Section */}
+      {/* REVIEWS */}
       <Row className="mt-5">
         <Col md={8}>
           <h3 className="mb-4 fw-bold">Customer Reviews</h3>
+          {product.reviews.length === 0 && <Alert variant="info">No reviews yet.</Alert>}
 
-          <div className="review-list mb-5">
-            {product.reviews && product.reviews.length === 0 && <Alert variant="info">No reviews yet.</Alert>}
-
-            {product.reviews && product.reviews.map((review) => (
-              <Card key={review.id} className="mb-3 border-0 shadow-sm review-card">
+          <div className="mb-4">
+            {product.reviews.map((review) => (
+              <Card key={review.id} className="mb-3 border-0 shadow-sm">
                 <Card.Body>
-                  <div className="d-flex justify-content-between mb-2">
-                    <strong className="fs-5">{review.name}</strong>
-                    <div className="rating-stars text-warning">
+                  <div className="d-flex justify-content-between">
+                    <strong>{review.name}</strong>
+                    <div className="text-warning">
                       {"★".repeat(review.rating)}
                       {"☆".repeat(5 - review.rating)}
                     </div>
                   </div>
-                  <p className="text-muted small mb-2">{review.createdAt?.substring(0, 10)}</p>
+                  <p className="text-muted small">{review.createdAt?.substring(0, 10)}</p>
                   <Card.Text>{review.comment}</Card.Text>
                 </Card.Body>
               </Card>
             ))}
           </div>
 
-          <Card className="review-form-card shadow-premium border-0">
-            <Card.Body className="p-4">
-              <h4 className="mb-3 fw-bold">Write a Customer Review</h4>
+          <Card className="shadow-sm border-0">
+            <Card.Body>
+              <h4>Write a Review</h4>
               {userInfo ? (
                 <Form onSubmit={submitReviewHandler}>
                   {reviewError && <Alert variant="danger">{reviewError}</Alert>}
-
                   <Form.Group className="mb-3" controlId="rating">
                     <Form.Label>Rating</Form.Label>
-                    <Form.Select value={rating} onChange={(e) => setRating(e.target.value)}>
+                    <Form.Select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
                       <option value="">Select...</option>
                       <option value="1">1 - Poor</option>
                       <option value="2">2 - Fair</option>
@@ -254,7 +268,6 @@ function ProductDetailScreen() {
                       <option value="5">5 - Excellent</option>
                     </Form.Select>
                   </Form.Group>
-
                   <Form.Group className="mb-3" controlId="comment">
                     <Form.Label>Comment</Form.Label>
                     <Form.Control
@@ -264,15 +277,10 @@ function ProductDetailScreen() {
                       onChange={(e) => setComment(e.target.value)}
                     />
                   </Form.Group>
-
-                  <Button type="submit" variant="primary">
-                    Submit Review
-                  </Button>
+                  <Button type="submit" variant="primary">Submit</Button>
                 </Form>
               ) : (
-                <Alert variant="warning">
-                  Please <Link to="/login">login</Link> to write a review
-                </Alert>
+                <Alert variant="warning">Please <Link to="/login">login</Link> to write a review</Alert>
               )}
             </Card.Body>
           </Card>

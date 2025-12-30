@@ -5,15 +5,15 @@ const QuantitySelector = ({ value, max, onChange, onRemove, disabled }) => {
     const [showMaxError, setShowMaxError] = useState(false);
 
     const handleDecrement = () => {
-        if (value > 1) {
-            onChange(value - 1);
+        if (Number(value) > 1) {
+            onChange(Number(value) - 1);
             setShowMaxError(false);
         }
     };
 
     const handleIncrement = () => {
-        if (value < max) {
-            onChange(value + 1);
+        if (Number(value) < Number(max)) {
+            onChange(Number(value) + 1);
         } else {
             setShowMaxError(true);
             setTimeout(() => setShowMaxError(false), 2000);

@@ -1,0 +1,51 @@
+.heart-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.heart-icon-large {
+    font-size: 5rem;
+    /* Large heart */
+    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 10px 15px rgba(255, 117, 140, 0.4));
+    animation: heartbeat 2s infinite ease-in-out;
+    z-index: 2;
+}
+
+/* Pulse animation removed */
+
+.wishlist-remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: #ef4444;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+.product-card:hover .wishlist-remove-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.wishlist-remove-btn:hover {
+    background: #ef4444;
+    color: white;
+    transform: scale(1.1);
+}

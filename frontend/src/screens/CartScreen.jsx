@@ -54,77 +54,107 @@ function CartScreen() {
 
   return (
     <Container className="py-5-custom cart-container">
-      <h2 className="mb-4 fw-bold">Shopping Cart</h2>
+      <h2 className="mb-4 fw-bold cart-header-title">Shopping Cart</h2>
 
       {error && <Alert variant="danger">{error}</Alert>}
 
       {cartItems.length === 0 ? (
-        <Alert variant="info">
-          Your cart is empty. <Link to="/">Go Back</Link>
-        </Alert>
+        <div className="empty-cart-container">
+          <div className="empty-cart-icon-wrapper">
+            <i className="fas fa-shopping-cart empty-cart-icon"></i>
+          </div>
+          <h2 className="empty-cart-title">Your Cart is Empty</h2>
+          <p className="empty-cart-subtitle">Looks like you haven't added anything to your cart yet.</p>
+          <Link to="/" className="btn btn-primary btn-lg rounded-pill px-5 shadow-lg">
+            Start Shopping
+          </Link>
+        </div>
       ) : (
         <Row>
           <Col md={8}>
-            <ListGroup variant="flush" className="cart-list shadow-sm">
-              {cartItems.map((item) => (
-                <ListGroup.Item key={item.id} className="p-4">
+            {cartItems.map((item) => (
+              <Card key={item.id} className="mb-3 border-0 shadow-sm cart-item-card">
+                <Card.Body className="p-3">
                   <Row className="align-items-center">
-                    <Col md={2}>
-                      <Image
-                        src={getImageUrl(item.product?.image_url)}
-                        alt={item.product?.name}
-                        fluid
-                        rounded
-                        className="cart-img"
-                      />
+                    <Col xs={3} sm={2} className="d-flex justify-content-center">
+                      <div className="cart-item-image-container p-2 rounded bg-light">
+                        <Image
+                          src={getImageUrl(item.product?.image_url)}
+                          alt={item.product?.name}
+                          fluid
+                          className="cart-img"
+                        />
+                      </div>
                     </Col>
-                    <Col md={4}>
-                      <Link to={`/product/${item.product?.id}`} className="text-decoration-none text-dark">
-                        <span className="fw-semibold fs-5">{item.product?.name}</span>
-                      </Link>
-                    </Col>
-                    <Col md={2} className="text-muted">
-                      ₹{item.product?.price}
-                    </Col>
-                    <Col md={3}>
-                      <QuantitySelector
-                        value={item.quantity}
-                        max={item.product?.stock || 99}
-                        onChange={(val) => dispatch(updateCartItem(item.id, val))}
-                        onRemove={() => removeFromCartHandler(item.id)}
-                        disabled={loading}
-                      />
-                    </Col>
-                    <Col md={2}>
-                      {/* Optional Remove Button */}
-                      <Button variant="light" onClick={() => removeFromCartHandler(item.id)}>
-                        <i className="fas fa-trash"></i> Remove
-                      </Button>
+
+                    <Col xs={9} sm={10}>
+                      <Row className="align-items-center h-100">
+                        <Col md={5} className="mb-2 mb-md-0">
+                          <Link to={`/product/${item.product?.id}`} className="text-decoration-none text-dark">
+                            <h5 className="fw-bold mb-1">{item.product?.name}</h5>
+                          </Link>
+                          <small className="text-muted">Price: ₹{item.product?.price}</small>
+                        </Col>
+
+                        <Col md={3} className="text-end text-md-center mb-2 mb-md-0">
+                          <h4 className="fw-bold cart-item-price mb-0">₹{item.product?.price}</h4>
+                        </Col>
+
+                        <Col md={4} className="d-flex flex-column align-items-end align-items-md-center">
+                          <QuantitySelector
+                            value={item.quantity}
+                            max={item.product?.stock || 99}
+                            onChange={(val) => dispatch(updateCartItem(item.id, val))}
+                            onRemove={() => removeFromCartHandler(item.id)}
+                            disabled={loading}
+                          />
+                          <div
+                            className="mt-2 text-danger small fw-bold cursor-pointer cart-remove-text"
+                            onClick={() => removeFromCartHandler(item.id)}
+                            role="button"
+                          >
+                            Remove
+                          </div>
+                        </Col>
+                      </Row>
                     </Col>
                   </Row>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
+                </Card.Body>
+              </Card>
+            ))}
           </Col>
 
           <Col md={4}>
-            <Card className="shadow-premium border-0">
-              <ListGroup variant="flush">
-                <ListGroup.Item>
-                  <h4 className="fw-bold">Subtotal ({cartItems.reduce((acc, item) => acc + item.quantity, 0)}) items</h4>
-                  <h3 className="fw-bold text-primary">₹{totalPrice.toFixed(2)}</h3>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <Button
-                    type="button"
-                    className="w-100 btn-primary rounded-pill py-2"
-                    disabled={cartItems.length === 0}
-                    onClick={orderHandler}
-                  >
-                    Proceed to Checkout
-                  </Button>
-                </ListGroup.Item>
-              </ListGroup>
+            <Card className="border-0 shadow-sm order-summary-card">
+              <Card.Body className="p-4">
+                <h4 className="fw-bold mb-4">Order Summary</h4>
+
+                <div className="d-flex justify-content-between mb-3 summary-row">
+                  <span className="text-muted">Subtotal ({cartItems.reduce((acc, item) => acc + item.quantity, 0)} items)</span>
+                  <span className="fw-bold">₹{totalPrice.toFixed(2)}</span>
+                </div>
+
+                <div className="d-flex justify-content-between mb-3 summary-row">
+                  <span className="text-success">Discount</span>
+                  <span className="text-success fw-bold">-₹0.00</span>
+                </div>
+
+                <hr className="my-3" />
+
+                <div className="d-flex justify-content-between mb-4 summary-row">
+                  <span className="fw-bold fs-5">Total</span>
+                  <span className="fw-bold fs-5">₹{totalPrice.toFixed(2)}</span>
+                </div>
+
+                <Button
+                  type="button"
+                  className="w-100 checkout-btn rounded py-2 fw-bold"
+                  disabled={cartItems.length === 0}
+                  onClick={orderHandler}
+                >
+                  Proceed to Checkout
+                </Button>
+              </Card.Body>
             </Card>
           </Col>
         </Row>

@@ -9,7 +9,9 @@ import OrderScreen from "./screens/OrderScreen";
 import ShippingScreen from "./screens/ShippingScreen";
 import OrderSuccessScreen from "./screens/OrderSuccessScreen";
 import AddressListScreen from "./screens/AddressListScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 
+import WishlistScreen from "./screens/WishlistScreen";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
         <Route path="/shipping" element={<ShippingScreen />} />
         <Route path="/order-success/:id" element={<OrderSuccessScreen />} />
         <Route path="/my-addresses" element={<AddressListScreen />} />
+        <Route path="/wishlist" element={<WishlistScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
       </Routes>
     </BrowserRouter>
   );

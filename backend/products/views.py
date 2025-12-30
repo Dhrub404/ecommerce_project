@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 # ... existing imports ...
 from .models import Product, Category, Review
+from .serializers import ProductSerializer, CategorySerializer
 
 # ... existing views ...
 
@@ -46,6 +47,10 @@ def createProductReview(request, pk):
     product.save()
 
     return Response('Review Added')
+
+
+
+
 
 from .serializers import ProductSerializer, CategorySerializer
 from rest_framework import permissions

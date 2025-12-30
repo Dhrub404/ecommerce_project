@@ -1,19 +1,142 @@
-.cart-list .list-group-item {
-  border: none;
-  border-bottom: 1px solid #e2e8f0;
+/* Empty Cart Animation */
+.empty-cart-container {
+    text-align: center;
+    padding: 4rem 1rem;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
-.cart-list .list-group-item:last-child {
-  border-bottom: none;
+.empty-cart-icon-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 2rem;
+}
+
+.cart-icon-anim {
+    font-size: 8rem;
+    color: #e2e8f0;
+    /* Slate-200, a light gray base */
+    animation: cartFloat 3s ease-in-out infinite;
+}
+
+.cart-icon-anim i {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0.5;
+    /* Slightly muted for the 'empty' feel, or fully vibrant */
+    /* Let's make it fully vibrant but maybe slightly transparent or just use the gradient text effect */
+    -webkit-text-fill-color: initial;
+    color: #cbd5e1;
+    /* Fallback */
+    background: none;
+    color: #cbd5e1;
+}
+
+/* Better approach for Icon: Use SVG or FontAwesome with specific color */
+.empty-cart-icon {
+    font-size: 120px;
+    color: #cbd5e1;
+    /* Light gray */
+    animation: cartBounce 2s infinite;
+}
+
+@keyframes cartBounce {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(-5deg);
+    }
+}
+
+.empty-cart-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.empty-cart-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+/* Cart Item Transitions */
+/* Existing Empty Cart Styles... */
+.empty-cart-container {
+    /* Unchanged */
+}
+
+/* ... assuming existing styles are kept or replaced below if conflicting */
+
+.cart-header-title {
+    color: #8b5cf6;
+    /* Primary Purple */
+}
+
+.cart-item-card {
+    border-radius: 12px;
+    background: white;
+    transition: transform 0.2s;
+}
+
+.cart-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.cart-item-image-container {
+    background-color: #f8fafc;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cart-img {
-  height: 80px;
-  width: 80px;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
+    max-height: 100%;
+    object-fit: contain;
 }
 
-.cart-container {
-  min-height: 80vh;
+.cart-item-price {
+    color: #6366f1;
+    /* Purple */
+}
+
+.cart-remove-text {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.cart-remove-text:hover {
+    color: #ef4444;
+    text-decoration: underline;
+}
+
+.order-summary-card {
+    border-radius: 16px;
+    background: white;
+}
+
+.checkout-btn {
+    background: #e11d48;
+    /* Pink/Redish */
+    background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
+    /* Pink Gradient */
+    border: none;
+    transition: all 0.2s;
+}
+
+.checkout-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
 }
