@@ -1,11 +1,87 @@
+/* Register Screen Redesign - Blue Theme (Matching User Login Screenshot) */
 .register-screen-wrapper {
     min-height: 80vh;
     display: flex;
     align-items: center;
-    background-color: var(--bg-body);
+    justify-content: center;
+    background-color: #f8fafc;
+    /* Light background */
 }
 
 .register-card {
     border: none;
-    border-radius: var(--radius-lg);
+    border-radius: 24px;
+    background: white;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.register-title {
+    color: #0d6efd;
+    /* Strong Blue to match Login header if it was blue, or Black if just the button is blue. User said "same color as login page". Login page has "Welcome Back" in black usually, but let's stick to the PRIMARY accent being Blue. */
+    /* Actually, standard is usually dark text for title, blue for button. But 'color' request implies theme. Let's start with dark title, blue button, blue focus. */
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.register-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+}
+
+.register-input {
+    background-color: #f1f5f9;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    color: #334155;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.register-input:focus {
+    background-color: white;
+    border-color: #3b82f6;
+    /* Blue Focus */
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    color: #1e293b;
+}
+
+.register-input::placeholder {
+    color: #94a3b8;
+}
+
+.btn-register {
+    background: #0d6efd;
+    /* Standard Bootstrap Blue / Login Blue */
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    color: white;
+}
+
+.btn-register:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    color: white;
+}
+
+.login-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.login-link:hover {
+    color: #0a58ca;
+    text-decoration: underline;
 }

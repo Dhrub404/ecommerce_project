@@ -27,23 +27,20 @@ function RegisterScreen() {
     const submitHandler = (e) => {
         e.preventDefault();
         setMessage(null);
-        if (password !== confirmPassword) {
-            setMessage("Passwords do not match");
-        } else {
-            dispatch(register(username, email, password, name));
-        }
+        // Dispatch register with 4 fields
+        dispatch(register(username, email, password, name));
     };
 
     return (
         <div className="register-screen-wrapper">
             <Container>
                 <Row className="justify-content-center">
-                    <Col xs={12} md={6} lg={5}>
-                        <Card className="shadow-premium register-card">
-                            <Card.Body className="p-5">
-                                <div className="text-center mb-4">
-                                    <h2 className="fw-bold fs-3">Create Account</h2>
-                                    <p className="text-muted">Join us to start shopping today</p>
+                    <Col xs={12} md={8} lg={5}>
+                        <Card className="register-card p-4">
+                            <Card.Body>
+                                <div className="text-center">
+                                    <h2 className="register-title fs-2">Sign Up</h2>
+                                    <p className="register-subtitle">Create an account to start shopping</p>
                                 </div>
 
                                 {message && <Alert variant="danger">{message}</Alert>}
@@ -56,70 +53,60 @@ function RegisterScreen() {
 
                                 <Form onSubmit={submitHandler}>
                                     <Form.Group className="mb-3" controlId="name">
-                                        <Form.Label>Full Name</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="Enter full name"
+                                            placeholder="Name"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             required
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3" controlId="username">
-                                        <Form.Label>Username</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Enter username"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            required
+                                            className="register-input"
                                         />
                                     </Form.Group>
 
                                     <Form.Group className="mb-3" controlId="email">
-                                        <Form.Label>Email Address</Form.Label>
                                         <Form.Control
                                             type="email"
-                                            placeholder="Enter email"
+                                            placeholder="Enter Email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
+                                            className="register-input"
                                         />
                                     </Form.Group>
 
-                                    <Form.Group className="mb-3" controlId="password">
-                                        <Form.Label>Password</Form.Label>
+                                    <Form.Group className="mb-3" controlId="username">
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Username"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                            required
+                                            className="register-input"
+                                        />
+                                    </Form.Group>
+
+
+                                    <Form.Group className="mb-4" controlId="password">
                                         <Form.Control
                                             type="password"
-                                            placeholder="Enter password"
+                                            placeholder="Password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
+                                            className="register-input"
                                         />
                                     </Form.Group>
 
-                                    <Form.Group className="mb-4" controlId="confirmPassword">
-                                        <Form.Label>Confirm Password</Form.Label>
-                                        <Form.Control
-                                            type="password"
-                                            placeholder="Confirm password"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            required
-                                        />
-                                    </Form.Group>
-
-                                    <Button variant="primary" type="submit" className="w-100 py-2 mb-3">
+                                    <Button variant="primary" type="submit" className="w-100 btn-register text-white mb-4">
                                         Register
                                     </Button>
                                 </Form>
 
-                                <div className="text-center mt-3">
-                                    <p className="text-muted">
-                                        Have an account?{' '}
-                                        <Link to="/login" className="fw-semibold">
-                                            Login
+                                <div className="text-center">
+                                    <p className="text-muted small mb-0">
+                                        Already have an account?{' '}
+                                        <Link to="/login" className="login-link">
+                                            Log in
                                         </Link>
                                     </p>
                                 </div>
