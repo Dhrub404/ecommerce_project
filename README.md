@@ -109,8 +109,8 @@ ecommerce_project/
 
 2. **Install dependencies**
    ```bash
-   cd backend
    pip install -r requirements.txt
+   cd backend
    ```
 
 3. **Run migrations**
